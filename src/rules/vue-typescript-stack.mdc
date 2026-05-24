@@ -1,0 +1,158 @@
+---
+alwaysApply: true
+---
+Ты эксперт в TypeScript, Node.js, Vite, Vue.js, Vue Router, Pinia, VueUse, NUXT UI и Tailwind, с глубоким пониманием лучших практик и техник оптимизации производительности в этих технологиях.
+
+# Vue.js + TypeScript Stack Guidelines
+
+## Технологический стек
+- **TypeScript** - основной язык разработки
+- **Vue.js 3** - фреймворк с Composition API
+- **Vite** - сборщик и dev-сервер
+- **Vue Router** - маршрутизация
+- **Pinia** - управление состоянием
+- **VueUse** - композиции для Vue
+- **Nuxt UI** - доступные UI компоненты
+- **Tailwind CSS** - утилитарный CSS фреймворк
+
+## Стиль кода и структура
+
+### Именование
+- Используй описательные имена переменных с вспомогательными глаголами:
+  ```typescript
+  const isLoading = ref(false)
+  const hasError = ref(false)
+  const canSubmit = computed(() => !isLoading.value && !hasError.value)
+  ```
+- Директории: lowercase с дефисами (например, `components/auth-wizard`)
+- Предпочитай именованные экспорты для функций
+
+## TypeScript использование
+
+### Основные принципы
+- Используй TypeScript для всего кода
+- **Предпочитай интерфейсы над типами** для их расширяемости и возможности слияния
+- **Избегай enum** - используй maps для лучшей типобезопасности и гибкости
+
+### Примеры
+```typescript
+// ❌ Плохо - enum
+enum UserRole {
+  ADMIN = 'admin',
+  USER = 'user'
+}
+
+// ✅ Хорошо - const assertion
+const USER_ROLES = {
+  ADMIN: 'admin',
+  USER: 'user'
+} as const
+
+type UserRole = typeof USER_ROLES[keyof typeof USER_ROLES]
+
+// ✅ Хорошо - интерфейс
+interface User {
+  id: string
+  name: string
+  email: string
+}
+
+// Расширение интерфейса
+interface AdminUser extends User {
+  permissions: string[]
+}
+```
+
+## Vue.js паттерны
+
+### Composition API
+- **Всегда используй `<script setup>` стиль**:
+```vue
+<script setup lang="ts">
+import { ref, computed } from 'vue'
+import type { User } from '@/types'
+
+interface Props {
+  user: User
+}
+
+const props = defineProps<Props>()
+const emit = defineEmits<{
+  update: [user: User]
+}>()
+
+const isLoading = ref(false)
+const userData = computed(() => props.user)
+</script>
+```
+
+### Функциональные компоненты
+- Используй функцию `function` для чистых функций (преимущества hoisting и ясности)
+- Компоненты должны быть функциональными с TypeScript интерфейсами
+
+## UI и стилизация
+
+### Компоненты
+- Используй **NUXT Plus** для готовых UI компонентов
+- Используй **RSCSS** подход для стилизации
+
+### Responsive дизайн
+- Реализуй адаптивный дизайн с RSCSS
+- Используй **mobile-first подход**
+
+## Оптимизация производительности
+
+### VueUse
+- Используй функции VueUse где применимо для улучшения реактивности и производительности
+
+### Асинхронные компоненты
+- Оборачивай асинхронные компоненты в Suspense с fallback UI:
+```vue
+<template>
+  <Suspense>
+    <template #default>
+      <AsyncComponent />
+    </template>
+    <template #fallback>
+      <LoadingSpinner />
+    </template>
+  </Suspense>
+</template>
+```
+
+### Динамическая загрузка
+- Используй динамическую загрузку для некритичных компонентов:
+```typescript
+const AsyncComponent = defineAsyncComponent(() => 
+  import('@/components/HeavyComponent.vue')
+)
+```
+
+### Оптимизация изображений
+- Используй формат WebP
+- Включай данные о размере
+- Реализуй lazy loading
+
+### Оптимизация сборки
+- Реализуй оптимизированную стратегию чанкинга в процессе сборки Vite
+- Используй code splitting для генерации меньших размеров бандлов
+
+## Web Vitals
+- Оптимизируй Web Vitals (LCP, CLS, FID) используя инструменты как Lighthouse или WebPageTest
+
+## Организация файлов
+- Организуй файлы систематически: каждый файл должен содержать только связанный контент
+- Группируй: экспортируемые компоненты, подкомпоненты, хелперы, статический контент и типы
+
+```typescript
+// ✅ Хорошая организация файла
+// types.ts
+export interface User { /* ... */ }
+export interface UserForm { /* ... */ }
+
+// helpers.ts
+export function formatUserName(user: User): string { /* ... */ }
+
+// components/UserCard.vue
+import type { User } from '@/types'
+import { formatUserName } from '@/helpers'
